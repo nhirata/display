@@ -1230,6 +1230,14 @@ int MDPComp::prepare(hwc_context_t *ctx, hwc_display_contents_1_t* list) {
     memset(&mCurrentFrame.drop, 0, sizeof(mCurrentFrame.drop));
     mCurrentFrame.dropCount = 0;
 
+    for (size_t i = 0; i < list->numHwLayers; i++) {
+        if (list->hwLayers[i].visibleRegionScreen.numRects > 1) {
+            mCachedFrame.cacheAll(list);
+            mCachedFrame.updateCounts(mCurrentFrame);
+            return -1;
+        }
+    }
+
     // Detect the start of animation and fall back to GPU only once to cache
     // all the layers in FB and display FB content untill animation completes.
     if(ctx->listStats[mDpy].isDisplayAnimating) {
